@@ -2041,6 +2041,8 @@ class DeviceTestCase(ModelTestCases.BaseModelTestCase):
         self.assertEqual(self.device.all_power_outlets.count(), 3)
 
     def test_child_devices_are_not_saved_when_unnecessary(self):
+        # TODO: Update this test to also verify recursion down nested device hierarchies
+        # (i.e., test that changes to a grandparent device update both child and grandchild devices)
         parent_device = Device.objects.create(
             name="Parent Device 1",
             location=self.location_3,
@@ -2197,7 +2199,7 @@ class DeviceBayTestCase(ModelTestCases.BaseModelTestCase):
         with self.assertRaises(ValidationError) as err:
             bay.validated_save()
         self.assertIn(
-            f'Cannot install device "{server}"; device-type "{server.device_type}" subdevice_role is not "child".',
+            f'Cannot install device "{server}"; device-type "{server.device_type}" subdevice_role is not "child" or "parent-child".',
             str(err.exception),
         )
 

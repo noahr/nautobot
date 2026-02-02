@@ -2429,14 +2429,24 @@ class DeviceUIViewSet(NautobotUIViewSet):
                 instance = get_obj_from_context(context, self.context_object_key)
                 try:
                     if instance.parent_bay is not None:
-                        parent = instance.parent_bay.device
-                        display = format_html(
-                            "{} / {}",
-                            helpers.hyperlinked_object(parent),
-                            helpers.hyperlinked_object(instance.parent_bay),
-                        )
-                        if parent.position is not None:
-                            display += format_html(" (U{} / {})", parent.position, parent.get_face_display())
+                        # Build fully qualified breadcrumb path by walking up the hierarchy
+                        path_objects = []
+                        current_bay = instance.parent_bay
+
+                        while current_bay is not None:
+                            path_objects.insert(0, current_bay)
+                            current_device = current_bay.device
+                            path_objects.insert(0, current_device)
+                            current_bay = getattr(current_device, "parent_bay", None)
+
+                        path_display = [helpers.hyperlinked_object(obj) for obj in path_objects]
+                        display = format_html(" / ".join(["{}"] * len(path_display)), *path_display)
+
+                        # Add top-level device position if it has one
+                        if path_objects and hasattr(path_objects[0], "position"):
+                            top_device_position = path_objects[0].position
+                            if top_device_position is not None:
+                                display += format_html(" (U{} / {})", top_device_position, path_objects[0].get_face_display())
                         return display
                 except DeviceBay.DoesNotExist:
                     pass

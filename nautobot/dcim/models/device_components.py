@@ -1174,10 +1174,16 @@ class DeviceBay(ComponentModel):
                         "installed_device": f"Cannot install the specified device; device is already installed in {current_bay}"
                     }
                 )
-            if self.installed_device.device_type.subdevice_role != SubdeviceRoleChoices.ROLE_CHILD:
+            if self.installed_device.device_type.subdevice_role not in (
+                SubdeviceRoleChoices.ROLE_CHILD,
+                SubdeviceRoleChoices.ROLE_PARENT_CHILD,
+            ):
                 raise ValidationError(
                     {
-                        "installed_device": f'Cannot install device "{self.installed_device}"; device-type "{self.installed_device.device_type}" subdevice_role is not "child".'
+                        "installed_device": (
+                            f'Cannot install device "{self.installed_device}"; device-type '
+                            f'"{self.installed_device.device_type}" subdevice_role is not "child" or "parent-child".'
+                        )
                     }
                 )
 
