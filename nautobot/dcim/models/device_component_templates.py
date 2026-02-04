@@ -514,9 +514,12 @@ class DeviceBayTemplate(ComponentTemplateModel):
         return self.instantiate_model(model=DeviceBay, device=device)
 
     def clean(self):
-        if self.device_type and self.device_type.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT:  # pylint: disable=no-member
+        if self.device_type and self.device_type.subdevice_role not in (
+            SubdeviceRoleChoices.ROLE_PARENT,
+            SubdeviceRoleChoices.ROLE_PARENT_CHILD,
+        ):
             raise ValidationError(
-                f'Subdevice role of device type ({self.device_type}) must be set to "parent" to allow device bays.'
+                f'Subdevice role of device type ({self.device_type}) must be set to "parent" or "parent-child" to allow device bays.'
             )
 
 
