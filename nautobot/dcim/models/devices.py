@@ -360,7 +360,11 @@ class DeviceType(PrimaryModel):
                 )
 
         if (
-            self.subdevice_role not in (SubdeviceRoleChoices.ROLE_PARENT, SubdeviceRoleChoices.ROLE_PARENT_CHILD)
+            self.subdevice_role
+            not in (
+                SubdeviceRoleChoices.ROLE_PARENT,
+                SubdeviceRoleChoices.ROLE_PARENT_CHILD,
+            )
             and self.device_bay_templates.count()
         ):
             raise ValidationError(
